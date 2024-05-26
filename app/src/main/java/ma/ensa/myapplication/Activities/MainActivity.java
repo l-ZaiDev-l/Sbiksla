@@ -23,7 +23,11 @@ import ma.ensa.myapplication.R;
 import ma.ensa.myapplication.components.bottom_bar;
 
 import android.database.Cursor;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,16 +37,24 @@ public class MainActivity extends AppCompatActivity {
     private TextView fullNameTextView;
     DatabaseHelper dbHelper;
     private RecyclerView.Adapter adapterPopular,adapterCat;
+    private EditText searchBar;
+    private ArrayList<PopularDomain> originalItems;
     private RecyclerView recyclerViewPopular,recyclerViewCategory;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dbHelper = new DatabaseHelper(this, "MainDatabase", null, 1);
+
         // Récupérer les informations de l'utilisateur à partir de SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String firstName = sharedPreferences.getString("FIRST_NAME", "Unknown");
         String lastName = sharedPreferences.getString("LAST_NAME", "User");
+
+        searchBar = findViewById(R.id.searchBar);
+
+        originalItems = dbHelper.getAllPopularItems();
 
 
 
@@ -53,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this, "MainDatabase", null, 1);
         bottombar();
         setupSeeAllClickListener();
-
+        setupSearchFunctionality();
 
         initRecyclerView();
     }
@@ -177,6 +189,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void setupSearchFunctionality() {
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Not used
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Filter items based on entered text
+                String searchText = charSequence.toString().toLowerCase();
+                ArrayList<PopularDomain> filteredList = new ArrayList<>();
+                for (PopularDomain item : originalItems) {
+                    if (item.getTitle().toLowerCase().contains(searchText) ||
+                            item.getLocation().toLowerCase().contains(searchText)) {
+                        filteredList.add(item);
+                    }
+                }
+                updatePopularItems(filteredList); // Update RecyclerView with filtered data
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // Not used
+            }
+        });
+    }
+
+
 
 
 

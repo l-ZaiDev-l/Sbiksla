@@ -92,7 +92,7 @@
                     android:orientation="horizontal">
 
                     <EditText
-                        android:id="@+id/editTextTextPersonName"
+                        android:id="@+id/searchBar"
                         android:layout_width="330dp"
                         android:layout_height="50dp"
                         android:background="@drawable/seatch_background"

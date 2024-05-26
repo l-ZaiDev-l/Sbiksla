@@ -9,6 +9,8 @@ import ma.ensa.myapplication.R;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.LinearLayout;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import ma.ensa.myapplication.Adapters.UserAdapter;
 import ma.ensa.myapplication.Database.DatabaseHelper;
 import ma.ensa.myapplication.Domains.UserDomain;
 import ma.ensa.myapplication.R;
+import ma.ensa.myapplication.components.bottom_bar;
 
 public class activity_display_users extends AppCompatActivity {
 
@@ -37,6 +40,7 @@ public class activity_display_users extends AppCompatActivity {
         // Create and set the adapter for the RecyclerView
         UserAdapter userAdapter = new UserAdapter(userList);
         recyclerView.setAdapter(userAdapter);
+        bottombar();
     }
 
     private ArrayList<UserDomain> getUsersFromDatabase() {
@@ -75,6 +79,15 @@ public class activity_display_users extends AppCompatActivity {
             cursor.close();
         }
         return userList;
+    }
+    private void bottombar(){
+        bottom_bar bottomBarClickListener = new bottom_bar(this);
+
+        LinearLayout profileBtn = findViewById(R.id.profileBtn);
+        LinearLayout homeBtn = findViewById(R.id.homeBtn);
+
+        profileBtn.setOnClickListener(bottomBarClickListener);
+        homeBtn.setOnClickListener(bottomBarClickListener);
     }
 
 }
