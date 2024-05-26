@@ -21,6 +21,7 @@ public class activity_admin extends AppCompatActivity {
         setContentView(R.layout.activity_admin);
 
         Button popularbtn = findViewById(R.id.popularbtn);
+        Button usersListBtn = findViewById(R.id.usersList);
 
         popularbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -29,6 +30,15 @@ public class activity_admin extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        usersListBtn.setOnClickListener(new View.OnClickListener() { // Set a click listener for the usersList button
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(activity_admin.this, activity_display_users.class); // Redirect to activity_display_users
+                startActivity(intent);
+            }
+        });
+
         bottombar();
     }
     private void bottombar(){

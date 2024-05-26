@@ -5,8 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+
+import ma.ensa.myapplication.Domains.PopularDomain;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -156,18 +161,114 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM category", null);
     }
 
-    // Get category ID by name
     public int getCategoryIdByName(String title) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT id FROM category WHERE title=?", new String[]{title});
-        if (cursor.moveToFirst()) {
-            int categoryId = cursor.getInt(cursor.getColumnIndex("id"));
+        int categoryId = -1; // Default value if category is not found
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex("id");
+            if (idIndex != -1) { // Check if column exists
+                categoryId = cursor.getInt(idIndex);
+            }
             cursor.close();
-            return categoryId;
         }
-        cursor.close();
-        return -1; // If not found
+
+        return categoryId;
     }
+
+    /*****************************************************************/
+
+    public ArrayList<PopularDomain> getPopularItemsByCategory(int categoryId) {
+        Log.d("DatabaseHelper", "Category ID: " + categoryId);
+        ArrayList<PopularDomain> filteredItems = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM popular WHERE category_id=?", new String[]{String.valueOf(categoryId)});
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                // Récupérer les données de l'élément populaire à partir du curseur
+                int idIndex = cursor.getColumnIndex("id");
+                int titleIndex = cursor.getColumnIndex("title");
+                int locationIndex = cursor.getColumnIndex("location");
+                int descriptionIndex = cursor.getColumnIndex("description");
+                int bedIndex = cursor.getColumnIndex("bed");
+                int guideIndex = cursor.getColumnIndex("guide");
+                int scoreIndex = cursor.getColumnIndex("score");
+                int picIndex = cursor.getColumnIndex("pic");
+                int wifiIndex = cursor.getColumnIndex("wifi");
+                int priceIndex = cursor.getColumnIndex("price");
+
+                // Extraire les valeurs de chaque colonne
+                int id = cursor.getInt(idIndex);
+                String title = cursor.getString(titleIndex);
+                String location = cursor.getString(locationIndex);
+                String description = cursor.getString(descriptionIndex);
+                int bed = cursor.getInt(bedIndex);
+                boolean guide = (cursor.getInt(guideIndex) == 1);
+                double score = cursor.getDouble(scoreIndex);
+                String pic = cursor.getString(picIndex);
+                boolean wifi = (cursor.getInt(wifiIndex) == 1);
+                int price = cursor.getInt(priceIndex);
+
+                // Créer un objet PopularDomain avec les données extraites
+                PopularDomain popular = new PopularDomain(title, location, description, bed, guide, score, pic, wifi, price);
+
+                // Ajouter l'objet PopularDomain à la liste des éléments filtrés
+                filteredItems.add(popular);
+
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return filteredItems;
+    }
+    public ArrayList<PopularDomain> getAllPopularItems() {
+        ArrayList<PopularDomain> allItems = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM popular", null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                // Retrieve data from cursor
+                int idIndex = cursor.getColumnIndex("id");
+                int titleIndex = cursor.getColumnIndex("title");
+                int locationIndex = cursor.getColumnIndex("location");
+                int descriptionIndex = cursor.getColumnIndex("description");
+                int bedIndex = cursor.getColumnIndex("bed");
+                int guideIndex = cursor.getColumnIndex("guide");
+                int scoreIndex = cursor.getColumnIndex("score");
+                int picIndex = cursor.getColumnIndex("pic");
+                int wifiIndex = cursor.getColumnIndex("wifi");
+                int priceIndex = cursor.getColumnIndex("price");
+
+                // Extract values from cursor
+                int id = cursor.getInt(idIndex);
+                String title = cursor.getString(titleIndex);
+                String location = cursor.getString(locationIndex);
+                String description = cursor.getString(descriptionIndex);
+                int bed = cursor.getInt(bedIndex);
+                boolean guide = cursor.getInt(guideIndex) == 1;
+                double score = cursor.getDouble(scoreIndex);
+                String pic = cursor.getString(picIndex);
+                boolean wifi = cursor.getInt(wifiIndex) == 1;
+                int price = cursor.getInt(priceIndex);
+
+                // Create PopularDomain object
+                PopularDomain popular = new PopularDomain(title, location, description, bed, guide, score, pic, wifi, price);
+
+                // Add PopularDomain object to the list
+                allItems.add(popular);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return allItems;
+    }
+
+
+
+
+
+
 
 
 

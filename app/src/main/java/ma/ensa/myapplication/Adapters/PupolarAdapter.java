@@ -42,6 +42,7 @@ public class PupolarAdapter extends RecyclerView.Adapter<PupolarAdapter.ViewHold
     holder.locationTxt.setText(items.get(position).getLocation());
     holder.scoreTxt.setText(""+items.get(position).getScore());
 
+
     int drawableResId=holder.itemView.getResources().getIdentifier(items.get(position).getPic(),"drawable",holder.itemView.getContext().getPackageName());
 
         Glide.with(holder.itemView.getContext())
@@ -75,4 +76,10 @@ public class PupolarAdapter extends RecyclerView.Adapter<PupolarAdapter.ViewHold
 
         }
     }
+    // Méthode pour mettre à jour la liste des éléments populaires
+    public void updatePopularItems(ArrayList<PopularDomain> updatedItems) {
+        this.items = updatedItems;
+        notifyDataSetChanged();
+    }
+
 }

@@ -44,15 +44,7 @@ public class MainActivity extends AppCompatActivity {
         String firstName = sharedPreferences.getString("FIRST_NAME", "Unknown");
         String lastName = sharedPreferences.getString("LAST_NAME", "User");
 
-        /*
-        //FullName Setup
-        String firstName = getIntent().getStringExtra("FIRST_NAME");
-        String lastName = getIntent().getStringExtra("LAST_NAME");
-        String email = getIntent().getStringExtra("EMAIL");
-        TextView fullNameTextView = findViewById(R.id.full_name);
-        fullNameTextView.setText(firstName + " " + lastName);
 
-         */
 
         fullNameTextView = findViewById(R.id.full_name);
         fullNameTextView.setText(firstName + " " + lastName);
@@ -60,10 +52,15 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this, "MainDatabase", null, 1);
         bottombar();
+        setupSeeAllClickListener();
+
 
         initRecyclerView();
     }
     private void initRecyclerView(){
+
+
+        // Pour les Popular
         ArrayList<PopularDomain> items=new ArrayList<>();
         Cursor popularCursor = dbHelper.getAll();
 
@@ -105,21 +102,45 @@ public class MainActivity extends AppCompatActivity {
             popularCursor.close();
         }
         recyclerViewPopular=findViewById(R.id.view_pop);
-        recyclerViewPopular.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        recyclerViewPopular.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         adapterPopular=new PupolarAdapter(items);
         recyclerViewPopular.setAdapter(adapterPopular);
 
+        // Pour les Category
 
         ArrayList<CategoryDomain> catsList=new ArrayList<>();
-        catsList.add(new CategoryDomain("Beaches","cat1"));
-        catsList.add(new CategoryDomain("Camps","cat2"));
-        catsList.add(new CategoryDomain("Forest","cat3"));
-        catsList.add(new CategoryDomain("Desert","cat4"));
-        catsList.add(new CategoryDomain("Montain","cat5"));
+        Cursor categoryCursor = dbHelper.getAllCategories();
+
+
+        if (categoryCursor != null && categoryCursor.moveToFirst()) {
+            /**/int idIndex = categoryCursor.getColumnIndex("id");
+            int titleIndex = categoryCursor.getColumnIndex("title");
+            int picPathIndex = categoryCursor.getColumnIndex("picPath"); // Index for the picPath column
+
+            do {
+                if (titleIndex != -1 && picPathIndex != -1) {
+                    /**/int categoryId = categoryCursor.getInt(idIndex);
+                    String title = categoryCursor.getString(titleIndex);
+                    String picPath = categoryCursor.getString(picPathIndex); // Retrieve the image path
+                    //catsList.add(new CategoryDomain(title, picPath)); // Store both title and picPath in CategoryDomain
+                    CategoryDomain category = new CategoryDomain();
+                    category.setId(categoryId);
+                    category.setTitle(title);
+                    category.setPicPath(picPath);
+                    catsList.add(category);
+                }
+            } while (categoryCursor.moveToNext());
+        }
+
+// Close the cursor after use
+        if (categoryCursor != null) {
+            categoryCursor.close();
+        }
+
 
         recyclerViewCategory=findViewById(R.id.view_cat);
         recyclerViewCategory.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        adapterCat=new CategoryAdapter(catsList);
+        adapterCat = new CategoryAdapter(catsList);
         recyclerViewCategory.setAdapter(adapterCat);
 
 
@@ -133,5 +154,32 @@ public class MainActivity extends AppCompatActivity {
         profileBtn.setOnClickListener(bottomBarClickListener);
         homeBtn.setOnClickListener(bottomBarClickListener);
     }
+    public void updatePopularItems(ArrayList<PopularDomain> filteredList) {
+
+        adapterPopular = new PupolarAdapter(filteredList);
+        recyclerViewPopular.setAdapter(adapterPopular);
+    }
+
+    /************************Filter Category**********************************/
+    public void filterPopularItemsByCategory(int categoryId) {
+        ArrayList<PopularDomain> filteredItems = dbHelper.getPopularItemsByCategory(categoryId);
+        updatePopularItems(filteredItems);
+    }
+    private void setupSeeAllClickListener() {
+        TextView seeAllTextView = findViewById(R.id.seeAll); // Get your "See all" TextView by its ID
+        seeAllTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // When the user clicks on "See all", retrieve all items and update the RecyclerView
+                ArrayList<PopularDomain> allItems = dbHelper.getAllPopularItems(); // Assuming you have a method to get all items
+                adapterPopular = new PupolarAdapter(allItems);
+                recyclerViewPopular.setAdapter(adapterPopular);
+            }
+        });
+    }
+
+
+
+
 
 }

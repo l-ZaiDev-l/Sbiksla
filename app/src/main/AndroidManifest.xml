@@ -30,6 +30,8 @@
             android:name=".Activities.DetailActivity"
             android:exported="false" />
         <activity android:name=".Activities.MainActivity" />
+        <activity android:name=".Activities.activity_display_users" />
+
         <activity
             android:name=".Activities.introActivity"
             android:exported="true">
