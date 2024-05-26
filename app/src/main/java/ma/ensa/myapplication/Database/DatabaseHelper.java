@@ -81,6 +81,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor resultat = sqLiteDatabase.rawQuery("SELECT * FROM popular", null);
         return resultat;
     }
+    public Cursor getAllUsers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM Users", null);
+    }
     public long insertPopular(String title, String location, String description, int bed, int guide, float score, String pic, int wifi, double price,int categoryId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
